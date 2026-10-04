@@ -12,8 +12,12 @@ app.get("/api/health",(_req,res)=>res.json({ok:true,service:"Numora",whatsappCon
 app.get("/api/messages",(_req,res)=>res.json(messages));
 app.post("/api/messages",async(req,res)=>{
  const {phone,body,channel="whatsapp",deviceId="sim-1"}=req.body||{};
+ const normalizedPhone=String(phone||"").replace(/[\\s()-]/g,"");
  if(!phone||!body?.trim()) return res.status(400).json({error:"phone and body are required"});
- const message={id:crypto.randomUUID(),channel,direction:"outbound",contact:phone,phone,body:body.trim(),timestamp:new Date().toISOString(),status:"queued"};
+ if(!/^09\\d{9}$/.test(normalizedPhone)&&!/^639\\d{9}$/.test(normalizedPhone)&&!/^\\+639\\d{9}$/.test(normalizedPhone)){
+  return res.status(400).json({error:"Enter a valid Philippine mobile number, e.g. 09171234567 or +639171234567"});
+ }
+ const message={id:crypto.randomUUID(),channel,direction:"outbound",contact:phone,phone:normalizedPhone.startsWith("+")?normalizedPhone:"+"+normalizedPhone,timestamp:new Date().toISOString(),status:"queued"};
  try{
   if(channel==="whatsapp"&&process.env.WHATSAPP_ACCESS_TOKEN&&process.env.WHATSAPP_PHONE_NUMBER_ID){const result=await sendTextMessage({to:phone,body:body.trim()});message.status="sent";message.providerId=result?.messages?.[0]?.id||null;}
   else if(channel==="sms"){const event=simGateway.sendSms({deviceId,to:phone,body:body.trim()});message.status=event.status;message.deviceId=deviceId;}
