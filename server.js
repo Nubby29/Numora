@@ -1,8 +1,10 @@
 // Numora v0.1.0 — WhatsApp prototype backend
 require("dotenv").config();
 
+const crypto = require("crypto");
 const express = require("express");
 const path = require("path");
+const { sendTextMessage } = require("./services/whatsapp");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,7 +28,10 @@ app.get("/api/health", (_req, res) => {
   res.json({
     ok: true,
     service: "Numora",
-    whatsappConfigured: Boolean(process.env.WHATSAPP_ACCESS_TOKEN && process.env.WHATSAPP_PHONE_NUMBER_ID)
+    whatsappConfigured: Boolean(
+      process.env.WHATSAPP_ACCESS_TOKEN &&
+      process.env.WHATSAPP_PHONE_NUMBER_ID
+    )
   });
 });
 
@@ -34,7 +39,7 @@ app.get("/api/messages", (_req, res) => {
   res.json(messages);
 });
 
-app.post("/api/messages", (req, res) => {
+app.post("/api/messages", async (req, res) => {
   const { phone, body } = req.body || {};
 
   if (!phone || !body?.trim()) {
@@ -51,19 +56,31 @@ app.post("/api/messages", (req, res) => {
     status: "queued"
   };
 
-  messages.push(message);
+  try {
+    if (process.env.WHATSAPP_ACCESS_TOKEN && process.env.WHATSAPP_PHONE_NUMBER_ID) {
+      const result = await sendTextMessage({ to: phone, body: body.trim() });
+      message.status = "sent";
+      message.providerId = result?.messages?.[0]?.id || null;
+    }
 
-  // Real WhatsApp sending will be added after Meta credentials are configured.
-  res.status(201).json(message);
+    messages.push(message);
+    res.status(201).json(message);
+  } catch (error) {
+    console.error("WhatsApp send failed:", error);
+    res.status(502).json({
+      error: "WhatsApp message could not be sent.",
+      details: error.message
+    });
+  }
 });
 
 app.post("/webhooks/whatsapp", (req, res) => {
-  // Meta webhook verification/processing will be implemented in the next integration step.
   console.log("WhatsApp webhook received:", JSON.stringify(req.body));
   res.sendStatus(200);
 });
 
-app.get("*", (_req, res) => {
+// Express 5-compatible SPA fallback.
+app.use((_req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
