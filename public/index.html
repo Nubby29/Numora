@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Numora — WhatsApp</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">N</div>
+        <div>
+          <strong>Numora</strong>
+          <span>Digital communications</span>
+        </div>
+      </div>
+
+      <div class="number-card">
+        <span class="eyebrow">YOUR NUMBER</span>
+        <strong>+63 917 000 0000</strong>
+        <span class="status"><i></i> WhatsApp prototype</span>
+      </div>
+
+      <div class="section-label">Conversations</div>
+      <button class="conversation active">
+        <span class="avatar">JS</span>
+        <span class="conversation-copy">
+          <strong>Juan Santos</strong>
+          <small>Welcome to the Numora prototype.</small>
+        </span>
+        <time>Now</time>
+      </button>
+    </aside>
+
+    <section class="chat">
+      <header class="chat-header">
+        <div>
+          <span class="avatar large">JS</span>
+          <div>
+            <strong>Juan Santos</strong>
+            <span>+63 917 123 4567</span>
+          </div>
+        </div>
+        <span class="connection"><i></i> Prototype</span>
+      </header>
+
+      <div id="messages" class="messages"></div>
+
+      <form id="composer" class="composer">
+        <input id="phone" type="hidden" value="+63 917 123 4567">
+        <input id="message" autocomplete="off" placeholder="Type a message…" aria-label="Message">
+        <button type="submit">Send</button>
+      </form>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>
