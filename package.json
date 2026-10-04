@@ -1,8 +1,8 @@
 {
   "name": "numora",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "Numora WhatsApp virtual communications prototype",
+  "description": "Numora communications and SIM gateway prototype",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
